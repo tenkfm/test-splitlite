@@ -2,7 +2,7 @@ import random
 
 import pytest
 
-from splitlite.ledger import Ledger
+from splitlite.ledger import Expense, Ledger
 from splitlite.settle import settle
 
 
@@ -131,3 +131,29 @@ def test_expense_share_is_float_quantized_to_cents():
     s = exp.share()
     assert isinstance(s, float)
     assert round(s, 2) == s
+
+
+def test_expense_shares_ticket_repro():
+    exp = Expense("x", 32.18, "a", ["a", "b", "c", "d"])
+    assert exp.shares() == {"a": 8.05, "b": 8.05, "c": 8.04, "d": 8.04}
+    assert round(sum(exp.shares().values()), 2) == 32.18
+
+
+def test_expense_shares_payer_not_participant():
+    exp = Expense("y", 10.01, "z", ["a", "b", "c"])
+    shares = exp.shares()
+    assert round(sum(shares.values()) * 100) == 1001
+    assert shares["a"] > shares["c"]
+    base = 1001 // 3 / 100
+    for p in ["a", "b", "c"]:
+        assert abs(round((shares[p] - base) * 100)) <= 1
+
+
+def test_expense_shares_consistent_with_balances():
+    ledger = make_ledger("a", "b", "c", "d")
+    exp = ledger.add_expense("x", 32.18, "a")
+    balances = ledger.balances()
+    shares = exp.shares()
+    for p in ["b", "c", "d"]:
+        assert abs(shares[p] - (-balances[p])) < 0.005
+    assert abs(shares["a"] + balances["a"] - exp.amount) < 0.005

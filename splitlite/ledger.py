@@ -34,7 +34,18 @@ class Expense:
     participants: list[str]
 
     def share(self) -> float:
+        """Floor per-participant share in dollars. Under largest-remainder some
+        participants actually pay ``floor + 0.01``; use :meth:`shares` for exact
+        per-participant amounts and :meth:`Ledger.balances` for net positions."""
         return (_to_cents(self.amount) // len(self.participants)) / 100
+
+    def shares(self) -> dict[str, float]:
+        return {
+            name: cents / 100
+            for name, cents in _distribute_cents(
+                _to_cents(self.amount), self.participants, self.paid_by
+            ).items()
+        }
 
 
 @dataclass
