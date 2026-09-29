@@ -9,9 +9,7 @@ def _to_cents(amount: float) -> int:
     return round(round(amount, 2) * 100)
 
 
-def _distribute_cents(
-    total_cents: int, participants: list[str], paid_by: str
-) -> dict[str, int]:
+def _distribute_cents(total_cents: int, participants: list[str], paid_by: str) -> dict[str, int]:
     """Largest-remainder split. Leftover cents go to the payer first (when the
     payer is a participant), then to remaining participants in list order."""
     n = len(participants)
