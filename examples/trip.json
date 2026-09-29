@@ -1,0 +1,8 @@
+{
+  "members": ["alice", "bob", "carol"],
+  "expenses": [
+    {"description": "hotel", "amount": 100, "paid_by": "alice"},
+    {"description": "taxi", "amount": 17.35, "paid_by": "bob", "participants": ["bob", "carol"]},
+    {"description": "museum", "amount": 0.1, "paid_by": "carol"}
+  ]
+}
