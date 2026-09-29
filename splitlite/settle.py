@@ -15,7 +15,7 @@ class Payment:
 
 
 def settle(ledger: Ledger) -> list[Payment]:
-    balances = ledger.balances()
+    balances = ledger._balances_cents()
     debtors = sorted((b, n) for n, b in balances.items() if b < 0)
     creditors = sorted(((b, n) for n, b in balances.items() if b > 0), reverse=True)
 
@@ -25,7 +25,8 @@ def settle(ledger: Ledger) -> list[Payment]:
         debt, debtor = debtors[i]
         credit, creditor = creditors[j]
         amount = min(-debt, credit)
-        payments.append(Payment(debtor, creditor, round(amount, 2)))
+        if amount > 0:
+            payments.append(Payment(debtor, creditor, amount / 100))
         debtors[i] = (debt + amount, debtor)
         creditors[j] = (credit - amount, creditor)
         if debtors[i][0] == 0:
